@@ -20,6 +20,7 @@
 #define FRAMES_PER_SECOND  120
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 #define SET_IDLE_MILLISECONDS 20000 // how many seconds at idle before moving to sleep?
+#define NUM_LEDS_PER_SECONDS 2 // how many LEDs are turned on every second when playing?
 
 // Variables used in CheckAccel() routine
 MPU6050 accelgyro;
@@ -33,7 +34,7 @@ RunningMedian a_verticalRollingSample = RunningMedian(5);
 int a_forward_offset=0,a_sideway_offset=0,a_vertical_offset=0;
 
 
-unsigned long start_time=0, current_time=0, elapsed_milliseconds=0;
+unsigned long start_time=0, current_time=0, elapsed_time=0, record_time=0, previous_record_time=0;
 int i=0;
 
 CRGB leds[NUM_LEDS];  // Define the array of leds
@@ -88,6 +89,22 @@ uint8_t gFrameCount = 0; // Inc by 1 for each Frame of Trasition, New/Changed co
 #define GAME_OVER_TRANSITION 1000 //duration of game over animation (ms)
 #define SLEEP_TRANSITION 2000 //duration of animation to sleep (ms)
 
+void LEDS_ON(int count, int record){
+    for (int i = NUM_LEDS; i >=0; i--) {
+      if (i<=NUM_LEDS-count){leds[i]=CRGB::Black;}
+      //else {leds[i]=CRGB::Green;}
+      else {leds[i]=CHSV(gHue, 255, 255);}
+      if (i==NUM_LEDS-record){leds[i]=CRGB::Red;}
+    }
+
+  // send the 'leds' array out to the actual LED strip
+  FastLED.show();  
+  // insert a delay to keep the framerate modest
+  FastLED.delay(1000/FRAMES_PER_SECOND);       
+  // do some periodic updates
+  EVERY_N_MILLISECONDS( 20 ) { gHue++; } // slowly cycle the "base color" through the rainbow
+}
+
 void LED(String pattern){
   if (pattern=="going_to_sleep"){
     digitalWrite(MOSFET_GATE,HIGH);
@@ -111,7 +128,7 @@ void LED(String pattern){
     }
   }
   
-   if (pattern=="play"){
+   if (pattern=="wahoo"){
     digitalWrite(MOSFET_GATE,HIGH);
     FastLED.setBrightness(HIGH_BRIGHTNESS); 
     // Call the pattern function once, updating the 'leds' array
@@ -207,6 +224,15 @@ void redGlitter() {
   }
 }
 
+void alloff() {
+  for (int i = NUM_LEDS; i >=0; i--) {
+    leds[i]=CRGB::Black;
+    delay(10);
+    FastLED.show();
+  }
+  //FastLED.show();
+}
+
 enum {Check_Battery,Wake_Up_Transition,Idle,Start_Play_Transition,Play,Wahoo,Game_Over_Transition, Sleep_Transition} condition=Idle;
 
 void loop() {
@@ -230,12 +256,19 @@ void loop() {
     break;
     
   case Start_Play_Transition:
-    if (millis()-start_time>START_PLAY_TRANSITION){condition=Play;start_time=millis();}
-    else {LED("start_play");}
+    //if (millis()-start_time>START_PLAY_TRANSITION){condition=Play;start_time=millis();previous_record_time=record_time;}
+    //else {LED("start_play");}
+    alloff();
+    condition=Play;
+    start_time=millis();
+    previous_record_time=record_time;
     break;
     
   case Play:
-    LED("play");
+    elapsed_time=(millis()-start_time)/1000;
+    if (elapsed_time>record_time){record_time=elapsed_time;}
+    if (elapsed_time>previous_record_time && elapsed_time<=previous_record_time+1 && previous_record_time !=0){LED("wahoo");}
+    else {LEDS_ON(NUM_LEDS_PER_SECONDS*int(elapsed_time),NUM_LEDS_PER_SECONDS*int(record_time));} 
     if (accel_status=="fallen"){condition=Game_Over_Transition;start_time=millis();}
     break;
     
