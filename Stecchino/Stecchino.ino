@@ -9,6 +9,7 @@
 #include <avr/sleep.h> // Librairies for sleep mode
 #include <avr/io.h> // Librairies for sleep mode
 
+// Definitions
 #define NUM_LEDS 72  // How many leds in your strip?
 #define HIGH_BRIGHTNESS 50  // Set LEDS brightness
 #define LOW_BRIGHTNESS 10  // Set LEDS brightness
@@ -22,7 +23,14 @@
 #define SET_IDLE_MILLISECONDS 20000 // how many seconds at idle before moving to Fake_sleep?
 #define SET_FAKE_SLEEP_MILLISECONDS 60000 // how many seconds at Fake_sleep before moving to Sleep?
 #define SET_MAX_SPIRIT_LEVEL_MILLISECONDS 20000 // how many seconds at Fake_sleep before moving to Sleep?
-#define NUM_LEDS_PER_SECONDS 2 // how many LEDs are turned on every second when playing?
+#define SET_MAX_PLAY_SECONDS 60 // how many milliseconds vertical before moving to Sleep? (in case Stecchino is forgotten vertical)
+#define NUM_LEDS_PER_SECONDS 2 // how many LEDs are turned on every second when playing?#define WAKE_UP_TRANSITION 1000 //duration of animation when system returns from sleep (ms)
+#define START_PLAY_TRANSITION 500 //duration of animation when game starts (ms)
+#define GAME_OVER_TRANSITION 1000 //duration of game over animation (ms)
+#define SLEEP_TRANSITION 2000 //duration of animation to sleep (ms)
+#define LOW_VCC 2700  // lower vcc value when checking battery level
+#define HIGH_VCC 3400  // higher vcc value when checking battery level
+
 
 // Variables used in CheckAccel() routine
 MPU6050 accelgyro;
@@ -34,19 +42,28 @@ RunningMedian a_sidewayRollingSample = RunningMedian(5);
 RunningMedian a_verticalRollingSample = RunningMedian(5);
 #define ACCELEROMETER_ORIENTATION 2     // 0, 1 or 2 to set the angle of the joystick
 int a_forward_offset=0,a_sideway_offset=0,a_vertical_offset=0;
-enum POSITION_BOUTONS { NONE, EN_HAUT,AU_DESSUS,EN_BAS,AU_DESSOUS, EN_AVANT, EN_ARRIERE, COUNT };  // Used to detect position of buttons relative to Stecchino and user
-const char *position_boutons[COUNT] = { "None", "EN_HAUT", "AU_DESSUS", "EN_BAS", "AU_DESSOUS", "EN_AVANT", "EN_ARRIERE" };
-uint8_t orientation_boutons = NONE;
+enum POSITION_STECCHINO { NONE, POSITION_1,POSITION_2,POSITION_3,POSITION_4, POSITION_5, POSITION_6, COUNT };  // Used to detect position of buttons relative to Stecchino and user
+const char *position_stecchino[COUNT] = { "None", "POSITION_1", "POSITION_2", "POSITION_3", "POSITION_4", "POSITION_5", "POSITION_6" };
+// POSITION_1: Stecchino V3/V4 horizontal with buttons up (idle)
+// POSITION_2: Stecchino V3/V4 horizontal with buttons down (force sleep)
+// POSITION_3: Stecchino V3/V4 horizontal with long edge down (spirit level)
+// POSITION_4: Stecchino V3/V4 horizontal with short edge down (opposite to spirit level)
+// POSITION_5: Stecchino V3/V4 vertical with PCB up (normal game position = straight)
+// POSITION_6: Stecchino V3/V4 vertical with PCB down (easy game position = straight)
+uint8_t orientation = NONE;
 
 unsigned long start_time=0, current_time=0, elapsed_time=0, record_time=0, previous_record_time=0;
-int i=0;
+int i=0, Vcc=0;
 float angle_2_horizon=0;
+bool Ready_4_Change=false;
 
 CRGB leds[NUM_LEDS];  // Define the array of leds
 
+//byte led_colour[NUM_LEDS];
+
 void setup() {
 
-  Serial.begin(38400);
+  Serial.begin(9600);
   while (!Serial);
 
   pinMode(PushB1,INPUT);
@@ -70,29 +87,30 @@ void setup() {
   accelgyro.initialize();  
   Serial.println("Starting MPU... ");
   
-  a_forward_offset=0;
-  a_sideway_offset=0;
-  a_vertical_offset=-100;
+  //a_forward_offset=0;
+  //a_sideway_offset=0;
+  //a_vertical_offset=-100;
 
   //delay(2000);
+  Vcc=int(readVcc());
   Serial.print("VCC=");
-  Serial.print(readVcc());
+  Serial.print(Vcc);
   Serial.println("mV");
+  CHECK_BATTERY_LED(Vcc);
+  delay(2000);
+  alloff();
   
   start_time=millis();
 }
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = {sinelon, juggle, bpm, rainbow, confetti };
-char* SimplePatternNames[]={"sinelon", "juggle", "bpm", "rainbow", "confetti" };
-uint8_t gCurrentPatternNumber = 1; // Index number of which pattern is current
+SimplePatternList gPatterns = {confetti, sinelon, juggle, bpm, rainbow};
+char* SimplePatternNames[]={"confetti","sinelon", "juggle", "bpm", "rainbow" };
+uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 uint8_t gFrameCount = 0; // Inc by 1 for each Frame of Trasition, New/Changed connection(s) pattern
-#define WAKE_UP_TRANSITION 1000 //duration of animation when system returns from sleep (ms)
-#define START_PLAY_TRANSITION 500 //duration of animation when game starts (ms)
-#define GAME_OVER_TRANSITION 1000 //duration of game over animation (ms)
-#define SLEEP_TRANSITION 2000 //duration of animation to sleep (ms)
+
 
 void LEDS_ON(int count, int record){
     for (int i = NUM_LEDS; i >=0; i--) {
@@ -122,7 +140,8 @@ void LED(String pattern){
   if (pattern=="idle"){
     digitalWrite(MOSFET_GATE,HIGH);
     FastLED.setBrightness(HIGH_BRIGHTNESS); 
-    confetti();
+    gPatterns[gCurrentPatternNumber]();
+    //confetti();
     //rainbow();
   }
       
@@ -189,6 +208,34 @@ void SPIRIT_LEVEL_LED(float angle){
     for (int i = NUM_LEDS; i >=0; i--){
       if (i==pos_led){leds[i]=CHSV(couleur_led, 255, 255);}
       //if (i==pos_led){leds[i]=CRGB::Blue;}
+      else {leds[i]=CRGB::Black;}
+    }
+    // send the 'leds' array out to the actual LED strip
+    FastLED.show();  
+    // insert a delay to keep the framerate modest
+    FastLED.delay(1000/FRAMES_PER_SECOND);  
+    // do some periodic updates
+  EVERY_N_MILLISECONDS( 20 ) { gHue++; } // slowly cycle the "base color" through the rainbow 
+}
+
+void CHECK_BATTERY_LED(int vcc){  // bargraph showing battery level
+    digitalWrite(MOSFET_GATE,HIGH);
+    FastLED.setBrightness(LOW_BRIGHTNESS);
+    if (vcc<LOW_VCC){vcc=LOW_VCC;}
+    if (vcc>HIGH_VCC){vcc=HIGH_VCC;}
+    int pos_led=map(vcc,LOW_VCC,HIGH_VCC,1,NUM_LEDS);
+    //Serial.println(vcc);
+    //Serial.println(LOW_VCC);
+    //Serial.println(HIGH_VCC);
+    //Serial.println(pos_led);
+
+    
+    for (int i = NUM_LEDS; i >=0; i--){
+      if (i<=pos_led){
+        if (i<=5){leds[i]=CRGB::Red;}
+        else if (i>5 && i<=15){leds[i]=CRGB::Orange;}
+        else {leds[i]=CRGB::Green;}
+        }
       else {leds[i]=CRGB::Black;}
     }
     // send the 'leds' array out to the actual LED strip
@@ -270,12 +317,17 @@ enum {Check_Battery,Wake_Up_Transition,Idle,Start_Play_Transition,Play,Wahoo,Gam
 
 void loop() {
   angle_2_horizon=CheckAccel();
+  //Serial.println(condition);
   switch (condition) {
 
   case Check_Battery:
+    Vcc=int(readVcc());
     Serial.print("VCC=");
-    Serial.print(readVcc());
+    Serial.print(Vcc);
     Serial.println("mV");
+    CHECK_BATTERY_LED(Vcc);
+    delay(2000);
+    alloff();
     condition=Idle;
     break;  
     
@@ -283,9 +335,17 @@ void loop() {
     break;
     
   case Idle:      
+    if (Button_1_On && Ready_4_Change) { 
+      //delay(20); // debouncing
+      Ready_4_Change=false;
+      nextPattern();  // change light patterns when button is pressed
+      start_time=millis();  // restart counter to enjoy new pattern longer
+    }
+    if (!Button_1_On){Ready_4_Change=true;}
     if (millis()-start_time>SET_IDLE_MILLISECONDS){condition=Fake_Sleep;start_time=millis();}
     if (accel_status=="straight"){condition=Start_Play_Transition;start_time=millis();}
-    if (orientation_boutons==EN_AVANT){condition=Spirit_Level;start_time=millis();}
+    if (orientation==POSITION_3){condition=Spirit_Level;start_time=millis();}
+    if (orientation==POSITION_2){condition=Sleep_Transition;start_time=millis();}
     else {LED("idle");}
     break;
     
@@ -302,6 +362,7 @@ void loop() {
     elapsed_time=(millis()-start_time)/1000;
     if (elapsed_time>record_time){record_time=elapsed_time;}
     if (elapsed_time>previous_record_time && elapsed_time<=previous_record_time+1 && previous_record_time !=0){LED("wahoo");}
+    if (elapsed_time>SET_MAX_PLAY_SECONDS){condition=Sleep_Transition;start_time=millis();}
     else {LEDS_ON(NUM_LEDS_PER_SECONDS*int(elapsed_time),NUM_LEDS_PER_SECONDS*int(record_time));} 
     if (accel_status=="fallen"){condition=Game_Over_Transition;start_time=millis();}
     break;
@@ -315,9 +376,8 @@ void loop() {
     break;
 
   case Spirit_Level:
-    if (orientation_boutons==AU_DESSOUS || orientation_boutons==AU_DESSUS){condition=Idle;start_time=millis();}
+    if (orientation==POSITION_1 || orientation==POSITION_2){condition=Idle;start_time=millis();}
     if (millis()-start_time>SET_MAX_SPIRIT_LEVEL_MILLISECONDS){condition=Fake_Sleep;start_time=millis();}
-    //if (accel_status=="straight"){condition=Start_Play_Transition;start_time=millis();}
     SPIRIT_LEVEL_LED(angle_2_horizon);
     //Serial.print("Angle to horizon:");
     //Serial.println(angle_2_horizon);
@@ -329,6 +389,7 @@ void loop() {
    case Fake_Sleep:
     if (millis()-start_time>SET_FAKE_SLEEP_MILLISECONDS){condition=Sleep_Transition;start_time=millis();}
     if (abs(angle_2_horizon)>15){condition=Idle;start_time=millis();}
+    if (Button_1_On){condition=Idle;Ready_4_Change=false;start_time=millis();}
     else LED("off");
     break; 
   
@@ -343,16 +404,17 @@ void loop() {
 float CheckAccel(){
   // Reads acceleration from MPU6050 to evaluate current condition.
   // Tunables: 
-  // Output values: still, cruising, braking, fallen, unknown
-
+  // Output values: accel_status=fallen or straight
+  //                orientation=POSITION_1 to POSITION_6
+  //                angle_2_horizon
   // Get accelerometer readings
   accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
   float angle_2_horizon=0;
 
   // Offset accel readings
-  int a_forward_offset = -2;
-  int a_sideway_offset = 2;
+  //int a_forward_offset = -2;
+  //int a_sideway_offset = 2;
   //int a_vertical_offset = 1;
 
   // Convert to expected orientation - includes unit conversion to "cents of g" for MPU range set to 2g
@@ -368,55 +430,55 @@ float CheckAccel(){
   // Get median
   int a_forwardRollingSampleMedian=a_forwardRollingSample.getMedian()-a_forward_offset;
   int a_sidewayRollingSampleMedian=a_sidewayRollingSample.getMedian()-a_sideway_offset;
-  //int a_verticalRollingSampleMedian=a_verticalRollingSample.getMedian()-a_vertical_offset+100;
-  int a_verticalRollingSampleMedian=a_verticalRollingSample.getMedian()-a_vertical_offset-100; 
+  int a_verticalRollingSampleMedian=a_verticalRollingSample.getMedian()-a_vertical_offset; 
   
-  // for debugging
-  //Serial.print("a_forward:");
-  //Serial.print(a_forwardRollingSampleMedian);
-  //Serial.print(" a_sideway:");
-  //Serial.print(a_sidewayRollingSampleMedian);
-  //Serial.print(" a_vertical:");
-  //Serial.println(a_verticalRollingSampleMedian);
-  
-    
   // Evaluate current condition based on smoothed accelarations
   accel_status="unknown";
   if (abs(a_sidewayRollingSampleMedian)>abs(a_verticalRollingSampleMedian)||abs(a_forwardRollingSampleMedian)>abs(a_verticalRollingSampleMedian)){accel_status="fallen";}
   if (abs(a_sidewayRollingSampleMedian)<abs(a_verticalRollingSampleMedian)&&abs(a_forwardRollingSampleMedian)<abs(a_verticalRollingSampleMedian)){accel_status="straight";}
   //else {accel_status="unknown";}
 
-  if (a_verticalRollingSampleMedian >= 80 && abs(a_forwardRollingSampleMedian) <= 25 && abs(a_sidewayRollingSampleMedian) <= 25 && orientation_boutons != EN_HAUT) {
+  if (a_verticalRollingSampleMedian >= 80 && abs(a_forwardRollingSampleMedian) <= 25 && abs(a_sidewayRollingSampleMedian) <= 25 && orientation != POSITION_6) {
     // coté 1 en haut
-    orientation_boutons = EN_HAUT;
-  } else if (a_forwardRollingSampleMedian >= 80 && abs(a_verticalRollingSampleMedian) <= 25 && abs(a_sidewayRollingSampleMedian) <= 25 && orientation_boutons != AU_DESSUS) {
+    orientation = POSITION_6;
+  } else if (a_forwardRollingSampleMedian >= 80 && abs(a_verticalRollingSampleMedian) <= 25 && abs(a_sidewayRollingSampleMedian) <= 25 && orientation != POSITION_2) {
     // coté 2 en haut
-    orientation_boutons = AU_DESSUS;
-  } else if (a_verticalRollingSampleMedian <= -80 && abs(a_forwardRollingSampleMedian) <= 25 && abs(a_sidewayRollingSampleMedian) <= 25 && orientation_boutons != EN_BAS) {
+    orientation = POSITION_2;
+  } else if (a_verticalRollingSampleMedian <= -80 && abs(a_forwardRollingSampleMedian) <= 25 && abs(a_sidewayRollingSampleMedian) <= 25 && orientation != POSITION_5) {
     // coté 3 en haut
-    orientation_boutons = EN_BAS;
-  } else if (a_forwardRollingSampleMedian <= -80 && abs(a_verticalRollingSampleMedian) <= 25 && abs(a_sidewayRollingSampleMedian) <= 25 && orientation_boutons != AU_DESSOUS) {
+    orientation = POSITION_5;
+  } else if (a_forwardRollingSampleMedian <= -80 && abs(a_verticalRollingSampleMedian) <= 25 && abs(a_sidewayRollingSampleMedian) <= 25 && orientation != POSITION_1) {
     // coté 4 en haut
-    orientation_boutons = AU_DESSOUS;
-  } else if (a_sidewayRollingSampleMedian >= 80 && abs(a_verticalRollingSampleMedian) <= 25 && abs(a_forwardRollingSampleMedian) <= 25 && orientation_boutons != EN_AVANT) {
+    orientation = POSITION_1;
+  } else if (a_sidewayRollingSampleMedian >= 80 && abs(a_verticalRollingSampleMedian) <= 25 && abs(a_forwardRollingSampleMedian) <= 25 && orientation != POSITION_3) {
     // coté LEDs en haut
-    orientation_boutons = EN_AVANT;
-  } else if (a_sidewayRollingSampleMedian <= -80 && abs(a_verticalRollingSampleMedian) <= 25 && abs(a_forwardRollingSampleMedian) <= 25 && orientation_boutons != EN_ARRIERE) {
+    orientation = POSITION_3;
+  } else if (a_sidewayRollingSampleMedian <= -80 && abs(a_verticalRollingSampleMedian) <= 25 && abs(a_forwardRollingSampleMedian) <= 25 && orientation != POSITION_4) {
     // coté batteries en haut
-    orientation_boutons = EN_ARRIERE;
+    orientation = POSITION_4;
   }  else {
     // orientation = FACE_NONE;
   }
-  
- //Serial.print(" - ");
- //Serial.print(position_boutons[orientation_boutons]);
- //Serial.print(" - ");
- //Serial.println(accel_status);
 
  angle_2_horizon=atan2(float(a_verticalRollingSampleMedian),float(max(abs(a_sidewayRollingSampleMedian),abs(a_forwardRollingSampleMedian))))*180/PI;
- //Serial.print(" ");
- //Serial.println(angle_2_horizon);
- return angle_2_horizon;
+
+  /*
+  // for debugging
+  Serial.print("a_forward:");
+  Serial.print(a_forwardRollingSampleMedian);
+  Serial.print(" a_sideway:");
+  Serial.print(a_sidewayRollingSampleMedian);
+  Serial.print(" a_vertical:");
+  Serial.print(a_verticalRollingSampleMedian);
+  Serial.print(" - ");
+  Serial.print(position_stecchino[orientation]);
+  Serial.print(" - ");
+  Serial.print(accel_status);
+  Serial.print(" - ");
+  Serial.println(angle_2_horizon);
+  */
+  
+   return angle_2_horizon;
  }
 
 
