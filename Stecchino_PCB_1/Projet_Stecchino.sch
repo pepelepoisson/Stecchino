@@ -1,0 +1,395 @@
+EESchema Schematic File Version 2
+LIBS:Project_Library
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:Projet_Stecchino-cache
+EELAYER 25 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 1
+Title "Stecchino"
+Date "2017-08-24"
+Rev "1"
+Comp "Papas Inventeurs - Inventor Dads"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L GND #PWR01
+U 1 1 59A0CAE1
+P 8350 3000
+F 0 "#PWR01" H 8350 2750 50  0001 C CNN
+F 1 "GND" H 8350 2850 50  0000 C CNN
+F 2 "" H 8350 3000 50  0000 C CNN
+F 3 "" H 8350 3000 50  0000 C CNN
+	1    8350 3000
+	1    0    0    -1  
+$EndComp
+$Comp
+L PWR_FLAG #FLG02
+U 1 1 59A0CAF9
+P 1700 2500
+F 0 "#FLG02" H 1700 2595 50  0001 C CNN
+F 1 "PWR_FLAG" H 1700 2680 50  0000 C CNN
+F 2 "" H 1700 2500 50  0000 C CNN
+F 3 "" H 1700 2500 50  0000 C CNN
+	1    1700 2500
+	1    0    0    -1  
+$EndComp
+$Comp
+L PWR_FLAG #FLG03
+U 1 1 59A0CB11
+P 1200 2500
+F 0 "#FLG03" H 1200 2595 50  0001 C CNN
+F 1 "PWR_FLAG" H 1200 2680 50  0000 C CNN
+F 2 "" H 1200 2500 50  0000 C CNN
+F 3 "" H 1200 2500 50  0000 C CNN
+	1    1200 2500
+	1    0    0    -1  
+$EndComp
+$Comp
+L LiPo_Mngmt_Board U1
+U 1 1 59A0CCE9
+P 2600 3600
+F 0 "U1" H 2600 3950 60  0000 C CNN
+F 1 "LiPo_Mngmt_Board" H 2600 4050 60  0000 C CNN
+F 2 "lib_fp:LiPo_Mngmt_Board" H 2600 3600 60  0001 C CNN
+F 3 "" H 2600 3600 60  0000 C CNN
+	1    2600 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L SW_PUSH SW1
+U 1 1 59A0CD40
+P 5000 4200
+F 0 "SW1" H 5000 4350 50  0000 C CNN
+F 1 "SW_PUSH" H 5000 4450 50  0000 C CNN
+F 2 "Buttons_Switches_ThroughHole:SW_PUSH_SMALL" H 5000 4200 50  0001 C CNN
+F 3 "" H 5000 4200 50  0000 C CNN
+	1    5000 4200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Q_NPN_EBC Q1
+U 1 1 59A0CE88
+P 3750 2700
+F 0 "Q1" H 4050 2750 50  0000 R CNN
+F 1 "2N3904" H 4250 2650 50  0000 R CNN
+F 2 "TO_SOT_Packages_THT:TO-92_Molded_Wide_Oval" H 3950 2800 50  0001 C CNN
+F 3 "" H 3750 2700 50  0000 C CNN
+	1    3750 2700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Q_PMOS_GDS Q2
+U 1 1 59A0CEE9
+P 4700 2500
+F 0 "Q2" H 5000 2550 50  0000 R CNN
+F 1 "IRF9540" H 5200 2450 50  0000 R CNN
+F 2 "TO_SOT_Packages_THT:TO-220_Neutral123_Horizontal_LargePads" H 4900 2600 50  0001 C CNN
+F 3 "" H 4700 2500 50  0000 C CNN
+	1    4700 2500
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R2
+U 1 1 59A0CF4C
+P 4500 2850
+F 0 "R2" V 4580 2850 50  0000 C CNN
+F 1 "10K" V 4500 2850 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 4430 2850 50  0001 C CNN
+F 3 "" H 4500 2850 50  0000 C CNN
+	1    4500 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R1
+U 1 1 59A0CF9F
+P 3200 2700
+F 0 "R1" V 3280 2700 50  0000 C CNN
+F 1 "10K" V 3200 2700 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 3130 2700 50  0001 C CNN
+F 3 "" H 3200 2700 50  0000 C CNN
+	1    3200 2700
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_01X03 P2
+U 1 1 59A0D14E
+P 4900 1450
+F 0 "P2" H 4900 1650 50  0000 C CNN
+F 1 "CONN_01X03" V 5000 1450 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03" H 4900 1450 50  0001 C CNN
+F 3 "" H 4900 1450 50  0000 C CNN
+	1    4900 1450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_01X02 P1
+U 1 1 59A0D1A9
+P 1350 3850
+F 0 "P1" H 1350 4000 50  0000 C CNN
+F 1 "CONN_01X02" V 1450 3850 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02" H 1350 3850 50  0001 C CNN
+F 3 "" H 1350 3850 50  0000 C CNN
+	1    1350 3850
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7000 3650 7000 3250
+Text Label 7000 3600 1    60   ~ 0
+I2C_SDA
+Wire Wire Line
+	7100 3650 7100 3250
+Text Label 7100 3600 1    60   ~ 0
+I2C_SCL
+Wire Wire Line
+	9200 3100 8550 3100
+Text Label 8950 3100 2    60   ~ 0
+I2C_SCL
+Wire Wire Line
+	9200 3200 8550 3200
+Text Label 8600 3200 0    60   ~ 0
+I2C_SDA
+Wire Wire Line
+	9200 3000 8350 3000
+Text Label 8600 3000 0    60   ~ 0
+GND
+Wire Wire Line
+	9200 2900 8550 2900
+Text Label 8600 2900 0    60   ~ 0
+ITG/MPU_VCC
+$Comp
+L ITG/MPU6050 U2
+U 1 1 59A0CA70
+P 10000 3250
+F 0 "U2" V 9400 2750 60  0000 C CNN
+F 1 "ITG/MPU6050" V 9300 2750 60  0000 C CNN
+F 2 "lib_fp:ITG_MPU_6050" H 10000 3250 60  0001 C CNN
+F 3 "" H 10000 3250 60  0000 C CNN
+	1    10000 3250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9200 3600 8550 3600
+Text Label 8650 3600 0    60   ~ 0
+D3
+Wire Wire Line
+	5300 4200 6050 4200
+Text Label 5550 4200 0    60   ~ 0
+RESET
+$Comp
+L GND #PWR04
+U 1 1 59A0E02F
+P 4400 4300
+F 0 "#PWR04" H 4400 4050 50  0001 C CNN
+F 1 "GND" H 4400 4150 50  0000 C CNN
+F 2 "" H 4400 4300 50  0000 C CNN
+F 3 "" H 4400 4300 50  0000 C CNN
+	1    4400 4300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4700 4200 4700 4500
+Connection ~ 4700 4300
+$Comp
+L SW_PUSH SW2
+U 1 1 59A0E228
+P 5000 4500
+F 0 "SW2" H 5000 4300 50  0000 C CNN
+F 1 "SW_PUSH" H 5000 4400 50  0000 C CNN
+F 2 "Buttons_Switches_ThroughHole:SW_PUSH_SMALL" H 5000 4500 50  0001 C CNN
+F 3 "" H 5000 4500 50  0000 C CNN
+	1    5000 4500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 2700 3550 2700
+Wire Wire Line
+	2300 2700 3050 2700
+Text Label 2400 2700 0    60   ~ 0
+MOSFET_PIN
+Wire Wire Line
+	3850 2500 4500 2500
+$Comp
+L +BATT #PWR05
+U 1 1 59A0EA6F
+P 4700 3300
+F 0 "#PWR05" H 4700 3150 50  0001 C CNN
+F 1 "+BATT" H 4700 3440 50  0000 C CNN
+F 2 "" H 4700 3300 50  0000 C CNN
+F 3 "" H 4700 3300 50  0000 C CNN
+	1    4700 3300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4800 2700 4800 3400
+Wire Wire Line
+	4800 3400 4700 3400
+Wire Wire Line
+	4700 3400 4700 3300
+Wire Wire Line
+	4500 3000 4800 3000
+Connection ~ 4800 3000
+Wire Wire Line
+	4500 2500 4500 2700
+$Comp
+L GND #PWR06
+U 1 1 59A0EB21
+P 3850 3250
+F 0 "#PWR06" H 3850 3000 50  0001 C CNN
+F 1 "GND" H 3850 3100 50  0000 C CNN
+F 2 "" H 3850 3250 50  0000 C CNN
+F 3 "" H 3850 3250 50  0000 C CNN
+	1    3850 3250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3850 3250 3850 2900
+Text Label 3850 3150 1    60   ~ 0
+GND
+Wire Wire Line
+	4800 1650 4800 2300
+Wire Wire Line
+	4900 1650 4900 2250
+Text Label 4900 2200 1    60   ~ 0
+WS_DATA_IN
+$Comp
+L GND #PWR07
+U 1 1 59A0EE2F
+P 5000 1900
+F 0 "#PWR07" H 5000 1650 50  0001 C CNN
+F 1 "GND" H 5000 1750 50  0000 C CNN
+F 2 "" H 5000 1900 50  0000 C CNN
+F 3 "" H 5000 1900 50  0000 C CNN
+	1    5000 1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5000 1900 5000 1650
+Wire Wire Line
+	2050 3750 1750 3750
+Text Label 1800 3750 0    60   ~ 0
+LIPO+
+Wire Wire Line
+	2050 3950 1750 3950
+Text Label 1800 3950 0    60   ~ 0
+LIPO-
+Wire Wire Line
+	1750 3750 1750 3800
+Wire Wire Line
+	1750 3800 1550 3800
+Wire Wire Line
+	1750 3950 1750 3900
+Wire Wire Line
+	1750 3900 1550 3900
+Wire Wire Line
+	1200 2500 1200 2800
+Wire Wire Line
+	1700 2500 1700 2800
+Text Label 1200 2750 1    60   ~ 0
+LIPO+
+Text Label 1700 2750 1    60   ~ 0
+LIPO-
+$Comp
+L +BATT #PWR08
+U 1 1 59A0F3C5
+P 3600 3750
+F 0 "#PWR08" H 3600 3600 50  0001 C CNN
+F 1 "+BATT" H 3600 3890 50  0000 C CNN
+F 2 "" H 3600 3750 50  0000 C CNN
+F 3 "" H 3600 3750 50  0000 C CNN
+	1    3600 3750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3200 3750 3600 3750
+$Comp
+L GND #PWR09
+U 1 1 59A0F432
+P 3600 3950
+F 0 "#PWR09" H 3600 3700 50  0001 C CNN
+F 1 "GND" H 3600 3800 50  0000 C CNN
+F 2 "" H 3600 3950 50  0000 C CNN
+F 3 "" H 3600 3950 50  0000 C CNN
+	1    3600 3950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3200 3950 3600 3950
+Text Label 3250 3950 0    60   ~ 0
+GND
+Text Label 3200 3750 0    60   ~ 0
++BATT
+Wire Wire Line
+	7650 4000 8400 4000
+Text Label 7850 4000 0    60   ~ 0
++BATT
+Wire Wire Line
+	4400 4300 6050 4300
+Text Label 5550 4300 0    60   ~ 0
+GND
+Wire Wire Line
+	7650 5000 8400 5000
+Text Label 7750 5000 0    60   ~ 0
+MOSFET_PIN
+$Comp
+L ARDUPROMINI_pins_on_4_sides uP1
+U 1 1 59A0CA23
+P 7250 2900
+F 0 "uP1" H 7100 2900 60  0000 C CNN
+F 1 "ARDUPROMINI_pins_on_4_sides" H 7250 3050 60  0000 C CNN
+F 2 "lib_fp:ArduinoProMini_pins_on_3_sides_big_holes" H 7250 2900 60  0001 C CNN
+F 3 "" H 7250 2900 60  0000 C CNN
+	1    7250 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6050 5100 5300 5100
+Text Label 5450 5100 0    60   ~ 0
+ITG/MPU_VCC
+Wire Wire Line
+	7650 5100 8400 5100
+Text Label 7750 5100 0    60   ~ 0
+WS_DATA_IN
+Wire Wire Line
+	6050 4400 5300 4400
+Wire Wire Line
+	5300 4400 5300 4500
+Text Label 5550 4400 0    60   ~ 0
+D2
+Wire Wire Line
+	6050 4500 5550 4500
+Text Label 5550 4500 0    60   ~ 0
+D3
+$EndSCHEMATC

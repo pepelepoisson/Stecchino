@@ -29,7 +29,7 @@
 #define GAME_OVER_TRANSITION 1000 //duration of game over animation (ms)
 #define SLEEP_TRANSITION 2000 //duration of animation to sleep (ms)
 #define LOW_VCC 2700  // lower vcc value when checking battery level
-#define HIGH_VCC 3400  // higher vcc value when checking battery level
+#define HIGH_VCC 3350  // higher vcc value when checking battery level
 
 
 // Variables used in CheckAccel() routine
@@ -156,14 +156,6 @@ void LED(String pattern){
    if (pattern=="wahoo"){
     digitalWrite(MOSFET_GATE,HIGH);
     FastLED.setBrightness(HIGH_BRIGHTNESS); 
-    // Call the pattern function once, updating the 'leds' array
-    //sinelon();
-    //juggle();
-    //bpm();
-    //rainbow();
-    //rainbowWithGlitter();
-    //confetti();
-    //gPatterns[gCurrentPatternNumber]();
     redGlitter();
   } 
    
@@ -303,7 +295,7 @@ void redGlitter() {
     }
   }
 }
-
+  
 void alloff() {
   for (int i = NUM_LEDS; i >=0; i--) {
     leds[i]=CRGB::Black;
@@ -363,6 +355,7 @@ void loop() {
     if (elapsed_time>record_time){record_time=elapsed_time;}
     if (elapsed_time>previous_record_time && elapsed_time<=previous_record_time+1 && previous_record_time !=0){LED("wahoo");}
     if (elapsed_time>SET_MAX_PLAY_SECONDS){condition=Sleep_Transition;start_time=millis();}
+    if (NUM_LEDS_PER_SECONDS*int(elapsed_time)>=NUM_LEDS){LED("wahoo");}
     else {LEDS_ON(NUM_LEDS_PER_SECONDS*int(elapsed_time),NUM_LEDS_PER_SECONDS*int(record_time));} 
     if (accel_status=="fallen"){condition=Game_Over_Transition;start_time=millis();}
     break;
