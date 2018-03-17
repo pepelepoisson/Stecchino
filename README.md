@@ -15,6 +15,7 @@ This repo contains:
 Make one yourself and let me know!
 ***
 ![PCB logo](Projet_Stecchino.png)
+![vcc](VCC_vs_V_Raw.png)
 ***
 ![Inventor Dads logo](Logo_Papas_Inventeurs_25mm.png)
 ***
