@@ -11,6 +11,7 @@ This repo contains:
 - Arduino Pro Mini sketch
 - Electronic schematic, V1 PCB KiCad files and Gerbers
 - Laser cut Inkscape and pdf files for V4 plywood Stecchino
+***
 Make one yourself and let me know!
 ***
 ![PCB logo](Projet_Stecchino.png)
