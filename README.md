@@ -27,7 +27,7 @@ Bill Of Material and costs for PCB V1:
 |1|1x2 90 deg pin headers|0,2|0,2||
 |1|1x3 90 deg pin headers|0,2|0,2||
 |1|LiPo battery|4|4|https://fr.aliexpress.com/item/5pcs-lot-Syma-X5C-X5SW-Heng-Kee-905-Cherson-CX-30-model-aircraft-Tanco-M68-3/32603900524.html|
-|1|50cm 72 WS2812B LEDs strip|10,515|10,515|https://fr.aliexpress.com/item/Promotion-Amico-100-Pcs-6x6x4-5mm-Panel-PCB-Momentary-Tactile-Tact-Push-Button-Switch-4-Pin/32563399489.html|
+|1|50cm 72 WS2812B LEDs strip|10,515|10,515|https://fr.aliexpress.com/item/individually-addressable-1m-4m-5m-waterproof-ip65-ip67-5050-rgb-30-60-144-led-m-5v/32773441024.html|
 |1|PCB|2|2||
 
 Total: Approx 25.5CAD for electronics + cost of woodwork.
