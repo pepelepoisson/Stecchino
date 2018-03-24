@@ -3,7 +3,7 @@
 Stecchino is an home-made game where you need to balance a stick-like device at the tip of your fingers. The longer you can keep it balanced the more LEDs are lit on the Stecchino device. Can you do better than your friends?
 ![Demo photo](Demo_Stecchino.JPG)
 ***
-![Stecchino](2_Stecchini.JPG)
+![Stecchini](2_Stecchini.JPG)
 ![Details](Detail_Stecchino.JPG)
 More details, photos and videos at http://www.chezpapietmamie.com/pcube/arduino/stecchino/
 ***
@@ -35,7 +35,10 @@ Total: Approx 25.5CAD for electronics + cost of woodwork.
 Make one yourself and let me know!
 ***
 ![PCB logo](Projet_Stecchino.png)
+***
+A few measurements to establish minimum VCC before Stecchino starts to bug. 
 ![vcc](VCC_vs_V_Raw.png)
 ***
 ![Inventor Dads logo](Logo_Papas_Inventeurs_25mm.png)
 ***
+![Stecchino](Stecchino.png)
