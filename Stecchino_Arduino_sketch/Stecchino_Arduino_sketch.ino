@@ -113,7 +113,7 @@ uint8_t gFrameCount = 0; // Inc by 1 for each Frame of Trasition, New/Changed co
 
 
 void LEDS_ON(int count, int record){
-    for (int i = NUM_LEDS; i >=0; i--) {
+    for (int i = NUM_LEDS-1; i >=0; i--) {
       if (i<=NUM_LEDS-count){leds[i]=CRGB::Black;}
       //else {leds[i]=CRGB::Green;}
       else {leds[i]=CHSV(gHue, 255, 255);}
@@ -132,7 +132,7 @@ void LED(String pattern){
   if (pattern=="going_to_sleep"){
     digitalWrite(MOSFET_GATE,HIGH);
     FastLED.setBrightness(LOW_BRIGHTNESS); 
-    for (int i = NUM_LEDS; i >=0; i--){
+    for (int i = NUM_LEDS-1; i >=0; i--){
       leds[i]=CRGB::Blue;
     }
   }
@@ -148,7 +148,7 @@ void LED(String pattern){
   if (pattern=="start_play"){
     digitalWrite(MOSFET_GATE,HIGH);
     FastLED.setBrightness(LOW_BRIGHTNESS); 
-    for (int i = NUM_LEDS; i >=0; i--){
+    for (int i = NUM_LEDS-1; i >=0; i--){
       leds[i]=CRGB::Green;
     }
   }
@@ -168,13 +168,13 @@ void LED(String pattern){
   if (pattern=="game_over"){
     digitalWrite(MOSFET_GATE,HIGH);
     FastLED.setBrightness(LOW_BRIGHTNESS); 
-    for (int i = NUM_LEDS; i >=0; i--){
+    for (int i = NUM_LEDS-1; i >=0; i--){
       leds[i]=CRGB::Red;
     }
   }
   
   if (pattern=="off"){
-    for (int i = NUM_LEDS; i >=0; i--) {
+    for (int i = NUM_LEDS-1; i >=0; i--) {
       //leds[i]=CRGB::Black;
       leds[i].nscale8(230);
     }
@@ -197,7 +197,7 @@ void SPIRIT_LEVEL_LED(float angle){
     //int pos_led=map(int_angle,45,-45,1,NUM_LEDS);
     int pos_led=map(int_angle,-45,45,1,NUM_LEDS);
     int couleur_led=map(pos_led,0,NUM_LEDS,0,255);
-    for (int i = NUM_LEDS; i >=0; i--){
+    for (int i = NUM_LEDS-1; i >=0; i--){
       if (i==pos_led){leds[i]=CHSV(couleur_led, 255, 255);}
       //if (i==pos_led){leds[i]=CRGB::Blue;}
       else {leds[i]=CRGB::Black;}
@@ -222,7 +222,7 @@ void CHECK_BATTERY_LED(int vcc){  // bargraph showing battery level
     //Serial.println(pos_led);
 
     
-    for (int i = NUM_LEDS; i >=0; i--){
+    for (int i = NUM_LEDS-1; i >=0; i--){
       if (i<=pos_led){
         if (i<=5){leds[i]=CRGB::Red;}
         else if (i>5 && i<=15){leds[i]=CRGB::Orange;}
@@ -297,7 +297,7 @@ void redGlitter() {
 }
   
 void alloff() {
-  for (int i = NUM_LEDS; i >=0; i--) {
+  for (int i = NUM_LEDS-1; i >=0; i--) {
     leds[i]=CRGB::Black;
     delay(10);
     FastLED.show();
